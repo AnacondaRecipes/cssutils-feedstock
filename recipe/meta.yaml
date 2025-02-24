@@ -1,41 +1,75 @@
 {% set name = "cssutils" %}
-{% set version = "2.6.0" %}
-{% set sha256 = "f7dcd23c1cec909fdf3630de346e1413b7b2555936dec14ba2ebb9913bf0818e" %}
+{% set version = "2.11.1" %}
 
 package:
-  name: {{ name }}
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  fn: {{ name }}-{{ version }}.tar.gz
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  url: https://github.com/jaraco/{{ name }}/archive/v{{ version }}.tar.gz
+  sha256: 5f85d8181a412cd4ac8006625547141d634329a6b79ae5469155a16e265d0274
 
 build:
-  noarch: python
   number: 0
-  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - csscapture = cssutils.scripts.csscapture:main
+    - csscombine = cssutils.scripts.csscombine:main
+    - cssparse = cssutils.scripts.cssparse:main
+  script_env:
+    - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: True  # [py<38]
 
 requirements:
   host:
-    - python >=3.6
+    - python
     - pip
-    - setuptools_scm >=6.4.2
+    - wheel
+    - setuptools >=61.2
+    - setuptools_scm >=3.4.1
   run:
-    - python >=3.6
+    - python
+    - more-itertools
+
+#>       raise URLError(exp)
+#E       urllib.error.URLError: <urlopen error [Errno 2] No such file or directory: '$PREFIX/lib/python3.9/site-packages/cssutils/tests/sheets/import.css'>
+{% set tests_to_skip = "test_parseString" %}
+{% set tests_to_skip = tests_to_skip + " or test_parseFile" %}
+#>       with open(filename, 'rb') as fd:
+#E       FileNotFoundError: [Errno 2] No such file or directory: '$PREFIX/lib/python3.9/site-packages/cssutils/tests/sheets/csscombine-proxy.css'
+{% set tests_to_skip = tests_to_skip + " or test_parseUrl" %}
+{% set tests_to_skip = tests_to_skip + " or test_combine" %}
 
 test:
+  source_files:
+    - pytest.ini
+    - conftest.py
+    - cssutils/tests
   imports:
     - cssutils
+  commands:
+    - pip check
+    - csscapture --help
+    - csscombine --help
+    - cssparse --help
+    - pytest -v -k "not ({{ tests_to_skip }})"
+  requires:
+    - pip
+    - pytest >=6,!=8.1.*
+    - jaraco.test >=5.1
+    - lxml  # [py<311]
+    - cssselect
+    - importlib_resources  # [py<39]
 
 about:
-  home: http://cthedot.de/cssutils/
-  license: LGPL-3.0-only
-  license_file:
-    - COPYING
-    - COPYING.LESSER
-
+  home: https://github.com/jaraco/cssutils
   summary: A CSS Cascading Style Sheets library for Python
+  license: LGPL-3.0-only
+  license_family: LGPL
+  license_file: LICENSE
+  description: A Python package to parse and build CSS Cascading Style Sheets. DOM only, not any rendering facilities!
+  doc_url: https://cssutils.readthedocs.io
+  dev_url: https://github.com/jaraco/cssutils
 
 extra:
   recipe-maintainers:
