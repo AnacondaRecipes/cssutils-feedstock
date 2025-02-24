@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/jaraco/cssutils/archive/v{{ version }}.tar.gz
+  url: https://github.com/jaraco/{{ name }}/archive/v{{ version }}.tar.gz
   sha256: 5f85d8181a412cd4ac8006625547141d634329a6b79ae5469155a16e265d0274
 
 build:
@@ -33,7 +33,6 @@ requirements:
 
 #>       raise URLError(exp)
 #E       urllib.error.URLError: <urlopen error [Errno 2] No such file or directory: '$PREFIX/lib/python3.9/site-packages/cssutils/tests/sheets/import.css'>
-cssutils/tests/test_cssutils.py::TestCSSutils::
 {% set tests_to_skip = "test_parseString" %}
 {% set tests_to_skip = tests_to_skip + " or test_parseFile" %}
 #>       with open(filename, 'rb') as fd:
@@ -71,8 +70,6 @@ about:
   description: A Python package to parse and build CSS Cascading Style Sheets. DOM only, not any rendering facilities!
   doc_url: https://cssutils.readthedocs.io
   dev_url: https://github.com/jaraco/cssutils
-
-  summary: A CSS Cascading Style Sheets library for Python
 
 extra:
   recipe-maintainers:
